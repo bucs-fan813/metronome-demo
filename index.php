@@ -3,7 +3,8 @@
     <title>MetronomeUSA Demo</title>
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css">
-
+	<link rel="shortcut icon" href="https://wearemetronome.com/images/phocafavicon/email%20logo.jpg" type="image/x-icon">
+	
     <style>
 video {
   object-fit: cover;
@@ -63,20 +64,31 @@ main {
   padding: 1rem;
 }
 
+.logosize {
+    width: 59px;
+    height: auto;
+}
+
 </style>
 
     
   </head>
   <body>
-  <video src="//media.istockphoto.com/videos/fly-over-city-lights-from-space-till-morning-video-id473264399" autoplay loop playsinline muted></video>
+  <!-- <video src="//media.istockphoto.com/videos/fly-over-city-lights-from-space-till-morning-video-id473264399" autoplay loop playsinline muted></video> -->
+  <video src="//ak0.picdn.net/shutterstock/videos/20886700/preview/stock-footage-follow-shot-of-squad-of-soldiers-running-forward-during-military-operation-in-the-desert-slow.mp4" autoplay loop playsinline muted></video>
+
 
   <header class="viewport-header">
-  <h1>
+
+<h1>
+  <a href="https://wearemetronome.com" target="_self" title="Metronome LLC" rel="home">
+                        <img src="https://wearemetronome.com/images/Logo_notext6.png" alt="Metronome LLC" class="logosize">
+            </a>
     Welcome to
     <span>Metronome</span>
   </h1>
   <div style="display:block"> 
-  <a href="/geoaxisuc/authorize" class="btn btn-lg btn-outline-light" >Login</a>
+  <a href="authorize" class="btn btn-lg btn-outline-light" >Login</a>
   </div>
 </header>
 
@@ -125,13 +137,7 @@ main {
       print ("Connected to $Database successfully");
       mysql_close($dbconnection);
     ?>
+    <script src="//gist.github.com/bucs-fan813/927501523300860a1103333a751a8c1a.js"></script>
 </main>
-  
-
-    <h2>PHP Information</h2>
-    <p/>
-    <?php
-      phpinfo();
-    ?>
   </body>
 </html>
