@@ -1,0 +1,7 @@
+{
+    "require": {
+        "aws/aws-sdk-php": "^3.85",
+        "mmucklo/krumo": "^0.5.7",
+        "bcosca/fatfree-core": "^3.6"
+    }
+}

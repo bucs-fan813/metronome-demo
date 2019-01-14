@@ -1,0 +1,151 @@
+<html>
+  <head>
+    <title>MetronomeUSA Demo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/css/bootstrap.min.css">
+	<link rel="shortcut icon" href="https://wearemetronome.com/images/phocafavicon/email%20logo.jpg" type="image/x-icon">
+	<!-- jQuery library -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script>
+    <style>
+video {
+  object-fit: cover;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+html {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 150%;
+  line-height: 1.4;
+}
+
+body {
+  margin: 0;
+}
+
+.viewport-header {
+  position: relative;
+  height: 50vh;
+  text-align: center;
+  /* display: flex; */
+  align-items: center;
+  justify-content: center;
+}
+
+h1 {
+  font-family: 'Syncopate', sans-serif;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 3vw;
+  line-height: 1.2;
+  font-size: 3vw;
+  text-align: center;
+}
+h1 span {
+  display: block;
+  font-size: 10vw;
+  letter-spacing: 0vw;
+}
+
+main {
+  width: 80vw;
+  left: 10%;
+  height: 40vh;
+  overflow: auto;
+  background: rgba(0, 0, 0, 0.66);
+  color: white;
+  position: relative;
+  padding: 1rem;
+}
+
+.nav-tabs {
+    width: 80vw;
+    left: 10%;
+    /* overflow: auto; */
+    background: rgba(0, 0, 0, 0.66);
+    color: white;
+    position: relative;
+}
+.logosize {
+    width: 59px;
+    height: auto;
+}
+
+</style>
+
+    
+  </head>
+  <body>
+  <!-- <video src="//media.istockphoto.com/videos/fly-over-city-lights-from-space-till-morning-video-id473264399" autoplay loop playsinline muted></video> -->
+  <video src="//ak0.picdn.net/shutterstock/videos/20886700/preview/stock-footage-follow-shot-of-squad-of-soldiers-running-forward-during-military-operation-in-the-desert-slow.mp4" autoplay loop playsinline muted></video>
+
+
+  <header class="viewport-header">
+
+<h1>
+  <a href="https://wearemetronome.com" target="_self" title="Metronome LLC" rel="home">
+                        <img src="https://wearemetronome.com/images/Logo_notext6.png" alt="Metronome LLC" class="logosize">
+            </a>
+    Created for
+    <span>SPAWAR</span>
+  </h1>
+  <div style="display:block"> 
+  <a href="login" class="btn btn-lg btn-outline-light" >Login</a> 
+  </div>
+</header>
+<check if="{{ @is_authenticated }}">
+
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link active" data-toggle="tab" href="#server">Server</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-toggle="tab" href="#log">Log</a>
+  </li>
+    <li class="nav-item">
+    <a class="nav-link" data-toggle="tab" href="#code">Code</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-toggle="tab" href="#reference">Reference</a>
+  </li>
+</ul>
+<main>
+    <!--  <h1>Welcome to the AWS CloudFormation PHP Sample</h1> -->
+    <p/>
+    <!-- Nav tabs -->
+
+ 
+<!-- Tab panes -->
+<div class="tab-content">
+  <div class="tab-pane container active" id="server">
+  The Current Date and Time is: {{ @current_time }}
+    <p/>
+    {{ @debug | RAW }}
+      Server =  {{ @aws_ec2_hostname }} <br />
+      EC2 instance-id =  {{ @aws_ec2_instance_id }} <br />
+      Database =  {{ @aws_rds_dbinstance_endpoint }} <br />
+      Connected to <span class="text-success">{{ @aws_rds_dbinstance_id }}</span> successfully
+      
+</div>
+  <div class="tab-pane container fade" id="log">...</div>
+  <div class="tab-pane container fade" id="code">
+  <script src="//gist.github.com/bucs-fan813/927501523300860a1103333a751a8c1a.js"></script>
+</div>
+  <div class="tab-pane container fade" id="reference">
+<img alt="aws-project_lamp-app_arch" title="aws-project_lamp-app_arch" src="//d1.awsstatic.com/Projects/lamp-web-app/aws-project_lamp-app_arch.5580fe94a407dc3f9142f05cd730c5c9d7de6ac6.png">
+</div>
+
+</div>
+
+</main>
+</check>
+  </body>
+</html>
