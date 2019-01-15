@@ -29,7 +29,26 @@ class Page {
         $f3->set('aws_rds_dbinstance_endpoint', $hostname);
         $f3->set('aws_rds_dbinstance_id', $result['DBInstances'][0]['DBInstanceIdentifier']);
         //$f3->set('DB', new DB\SQL("mysql:host={$hostname};port={$port};dbname={$database}",$username, $password));
+        
+        $client = new Aws\CloudWatchLogs\CloudWatchLogsClient([
+            'version' => 'latest',
+            'region' => 'us-east-1',
+            'profile' => 'default',
+        ]);
+        $result = $client->getLogEvents([
+//            'endTime' => <integer>,
+//            'limit' => <integer>,
+            'logGroupName' => '/var/log/messages', // REQUIRED
+            'logStreamName' => 'i-00b505e5c02ae863e', // REQUIRED
+//            'nextToken' => '<string>',
+//            'startFromHead' => true || false,
+//            'startTime' => <integer>,
+        ]); 
+        //$f3->set('debug', k($result['events'],KRUMO_RETURN)); 
+        $f3->set('aws_cloudwatch_events', $result['events']);
+        
         $this->f3 = $f3;
+        
     }  
     
     function home($f3) {
@@ -84,8 +103,11 @@ class Page {
                         'header'=>['Accept: application/json']
                     ];
                     $me = $web->request($uri, $options);
-                    if ($me)
+                    if ($me) {
                         $f3->set('is_authenticated',true);
+                        //$f3->set('me',k($me,KRUMO_RETURN));
+                        $f3->set('me',json_decode($me['body'],1)['items'][0]);
+                    }
                         //k(json_decode($me['body']));
                     //$f3->set('token', $request);
                     

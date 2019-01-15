@@ -79,6 +79,16 @@ main {
     height: auto;
 }
 
+.terminal {
+    position: relative;
+    font-family: monospace;
+    background-color: black;
+    text-decoration: none;
+    color: #00ff00;
+    font-size: .7em;
+    padding: 15px;
+}
+
 </style>
 
     
@@ -116,6 +126,9 @@ main {
   <li class="nav-item">
     <a class="nav-link" data-toggle="tab" href="#reference">Reference</a>
   </li>
+    <li class="nav-item">
+    <a class="nav-link" data-toggle="tab" href="#user">User</a>
+  </li>
 </ul>
 <main>
     <!--  <h1>Welcome to the AWS CloudFormation PHP Sample</h1> -->
@@ -126,23 +139,54 @@ main {
 <!-- Tab panes -->
 <div class="tab-content">
   <div class="tab-pane container active" id="server">
-  The Current Date and Time is: {{ @current_time }}
+  The Current Date and Time is: {{ @current_time }}<br />
     <p/>
-    {{ @debug | RAW }}
       Server =  {{ @aws_ec2_hostname }} <br />
       EC2 instance-id =  {{ @aws_ec2_instance_id }} <br />
       Database =  {{ @aws_rds_dbinstance_endpoint }} <br />
       Connected to <span class="text-success">{{ @aws_rds_dbinstance_id }}</span> successfully
       
 </div>
-  <div class="tab-pane container fade" id="log">...</div>
+  <div class="tab-pane container fade" id="log">
+
+      <div class="terminal">
+  
+    <repeat group="{{ @aws_cloudwatch_events }}" value="{{ @event }}" class="terminal">
+    <span>{{ @event.message }}</span><br />
+         
+</repeat>
+</div>
+  </div>
   <div class="tab-pane container fade" id="code">
   <script src="//gist.github.com/bucs-fan813/927501523300860a1103333a751a8c1a.js"></script>
 </div>
   <div class="tab-pane container fade" id="reference">
 <img alt="aws-project_lamp-app_arch" title="aws-project_lamp-app_arch" src="//d1.awsstatic.com/Projects/lamp-web-app/aws-project_lamp-app_arch.5580fe94a407dc3f9142f05cd730c5c9d7de6ac6.png">
 </div>
-
+  <div class="tab-pane container fade" id="user">
+  <exclude>{{ @me | raw }}</exclude>
+  <repeat group="{{ @me }}" key="{{ @key }}" value="{{ @value }}">
+  <check if="{{ !is_array(@value) && @value != '' }}">
+    <check if="{{ stripos(@value,'gravatar')!==false }}">
+    <true>
+    <p><span class="text-success">{{ trim(@key) }}:</span> <img src="{{ @value }}" /></p>
+    </true>
+    <false>
+        <check if="{{ stripos(@key,'date')!==false }}">
+    <true>
+    <p><span class="text-success">{{ trim(@key) }}:</span> {{  'g:i A l, F j Y',@value  | date }}</p>
+    </true>
+    <false>
+        <p><span class="text-success">{{ trim(@key) }}:</span> {{ @value }}</p>
+    </false>
+    </check>
+    </false>
+    </check>
+        
+   </check>
+</repeat>
+  
+</div>
 </div>
 
 </main>
