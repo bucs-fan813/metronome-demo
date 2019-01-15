@@ -38,13 +38,14 @@ class Page {
     	 
     	// Create a new (and much lighter) OAuth2 client with no external dependencies!!  	   
     	$oauth2 = new \Web\OAuth2();
-    	$auth_domain = 'https://stackoverflow.com';
+    	$oauth_credentials = $f3->get('oauth_credentials');
+    	$auth_domain = $oauth_credentials['oauth_domain'];
     	$redirect_uri = "{$f3->get('SCHEME')}://{$f3->get('HOST')}{$f3->get('BASE')}/login";
     	
     	//Set OAuth parameters
     	$oauth2->set('redirect_uri', $redirect_uri);
-    	$oauth2->set('client_id', '12256');
-    	$oauth2->set('client_secret', '6J4fm2Ok73o20Q5dXO8ZhA((');
+    	$oauth2->set('client_id', $oauth_credentials['oauth_client_id']);
+    	$oauth2->set('client_secret', $oauth_credentials['oauth_client_secret ']);
 
     	if ($f3->get('VERB') == 'GET' && !isset($_GET['code'])) {
     		//Step 1: OAuth 2.0 flow (Send a user to /oauth endpoint, with these query string parameters)
@@ -61,8 +62,8 @@ class Page {
     			//$oauth2 = new \Web\OAuth2();
     			$web=\Web::instance();
     			$oauth2->set('access_token', $request['access_token']);
-    			$oauth2->set('key', 'jYhy)W5d6ThTUK)iA60swg((');
-    			$oauth2->set('site', 'stackoverflow');
+    			$oauth2->set('key', $oauth_credentials['oauth_stackoverflow_key']);
+    			$oauth2->set('site', $oauth_credentials['oauth_stackoverflow_site']);
     			$uri = $oauth2->uri('https://api.stackexchange.com/me',true,false);
     			//$uri = "https://api.stackexchange.com/2.2/me?access_token={$request['access_token']}&key=jYhy)W5d6ThTUK)iA60swg((&site=stackoverflow";
     			$options=[
@@ -77,7 +78,7 @@ class Page {
     			$f3->set('is_authenticated',false);
     		}
     }
-    }
+   }
     
     //Get aws_ec2_instance
     function get_ec2_instance () {    	
@@ -91,17 +92,29 @@ class Page {
     			'InstanceIds' => [$instance_id]
     	]);
     	$f3 = $this->f3;
-    	$f3->set('debug', k($result,KRUMO_RETURN));
+
     	//Set aws_ec2_instance properties
 		$output = [
 				//'Name' => $result['Reservations'][0]['Instances'][0]['Tags'][0]['Value'],
     			'Address' => $result['Reservations'][0]['Instances'][0]['PublicDnsName'],
+				'VpcId' => $result['Reservations'][0]['Instances'][0]['VpcId'],
 				'Identifier' => $instance_id
     	];
 		foreach ($result['Reservations'][0]['Instances'][0]['Tags'] as $tag)
 			if ($tag['Key'] == 'Name')
 				$output['Name'] = $tag['Value'];
 
+		$result = $client->DescribeVpcs([
+				'VpcIds' => [$output['VpcId']]
+		]);
+		
+		//Get sensitive OAuth Credentials from VPC tags. This is not the AWS best practice but for demonstration purposes we will
+		//use this method to keep the code UNCLASSIFIED!
+		$oauth_credentials = [];
+		foreach ($result['Vpcs'][0]['Tags'] as $tag)
+			$oauth_credentials[$tag['Key']] = $tag['Value'];
+
+		$f3->set('oauth_credentials', $oauth_credentials);				
 		$output['style'] = ($output['Name'] == 'pulser_web_1') ? 'badge-primary' : 'badge-success';
     	return $output;
     }
@@ -113,16 +126,26 @@ class Page {
     function get_rds_instance () {
     	//Create RDS Client
         $client = new Aws\Rds\RdsClient($this->aws_credentials);
-        $result = $client->describeDBInstances();
-
+        $result = $client->describeDBInstances();       
+        
         //Set aws_rds_instance properties
         $output = [
         	'Address' => $result['DBInstances'][0]['Endpoint']['Address'],
         	'Port' => $result['DBInstances'][0]['Endpoint']['Port'],
         	'MasterUsername' => $result['DBInstances'][0]['MasterUsername'],
         	'Identifier' => $result['DBInstances'][0]['DBInstanceIdentifier'],
+        	'ARN' =>$result['DBInstances'][0]['DBInstanceArn']
         ];
-        $output['connection'] = mysqli_connect($output['Address'], $output['MasterUsername'], 'password'); 	
+        
+        $result = $client->ListTagsForResource([
+        	'ResourceName' => $output['ARN']
+        ]);
+        
+        foreach ($result['TagList'] as $tag)
+        	if ($tag['Key'] == 'RDS_Password')
+        		$output['RDS_Password'] = base64_decode($tag['Value']);
+               		
+        $output['connection'] = mysqli_connect($output['Address'], $output['MasterUsername'], $output['RDS_Password']); 	
 		mysqli_close($output['connection']);
         return $output;
         //$f3->set('DB', new DB\SQL("mysql:host={$hostname};port={$port};dbname={$database}",$username, $password));
