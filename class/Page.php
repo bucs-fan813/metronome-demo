@@ -90,13 +90,18 @@ class Page {
     	$result = $client->describeInstances([
     			'InstanceIds' => [$instance_id]
     	]);
-
+    	$f3 = $this->f3;
+    	$f3->set('debug', k($result,KRUMO_RETURN));
     	//Set aws_ec2_instance properties
 		$output = [
-				'Name' => $result['Reservations'][0]['Instances'][0]['Tags'][0]['Value'],
+				//'Name' => $result['Reservations'][0]['Instances'][0]['Tags'][0]['Value'],
     			'Address' => $result['Reservations'][0]['Instances'][0]['PublicDnsName'],
 				'Identifier' => $instance_id
     	];
+		foreach ($result['Reservations'][0]['Instances'][0]['Tags'] as $tag)
+			if ($tag['Key'] == 'Name')
+				$output['Name'] = $tag['Value'];
+
 		$output['style'] = ($output['Name'] == 'pulser_web_1') ? 'badge-primary' : 'badge-success';
     	return $output;
     }
