@@ -162,7 +162,7 @@ class Page {
            //'descending' => true || false,
            //'limit' => <integer>,
            'logGroupName' => '/var/log/httpd/access_log', // REQUIRED
-           'logStreamNamePrefix' => 'test' . $this->instance_id,
+           'logStreamNamePrefix' => $this->instance_id,
            //'nextToken' => '<string>',
            //'orderBy' => $this->instance_id,
        ]);
