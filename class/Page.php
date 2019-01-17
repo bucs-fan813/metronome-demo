@@ -104,6 +104,9 @@ class Page {
 			if ($tag['Key'] == 'Name')
 				$output['Name'] = $tag['Value'];
 
+		$f3 = $this->f3;
+		$f3->set('debug', k('1' . $output,KRUMO_RETURN));
+				
 		$result = $client->DescribeVpcs([
 				'VpcIds' => [$output['VpcId']]
 		]);

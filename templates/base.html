@@ -5,7 +5,14 @@
     <link rel="stylesheet" href="{{@SCHEME}}://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/css/bootstrap.min.css">
 	<link rel="shortcut icon" href="{{@SCHEME}}://wearemetronome.com/images/phocafavicon/email%20logo.jpg" type="image/x-icon">
 	<!-- jQuery library -->
-<script src="{{@SCHEME}}://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="{{@SCHEME}}://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<meta http-equiv="Cache-Control" content="must-revalidate">
+<meta http-equiv="cache-control" content="max-age=0" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<meta http-equiv="pragma" content="no-cache" />
+
 	<script src="{{@SCHEME}}://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script>
     <style> 
 video {
@@ -121,6 +128,8 @@ main {
   	<true><a href="/" class="btn btn-lg btn-outline-light" >Start Over</a></true>
   	</check> 
   </div>
+  <br /><a href="/download/file.big" class="btn btn-sm btn-outline-light" >Download</a>
+  
 </header>
 <check if="{{ @is_authenticated }}">
 
@@ -210,5 +219,7 @@ main {
 
 </main>
 </check>
+
+
   </body>
 </html>

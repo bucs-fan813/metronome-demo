@@ -11,5 +11,7 @@ $f3 = \Base::instance();
 //Load F3 Config
 $f3->config('config.ini');
 
+$f3->clear('CACHE');
+
 //Run F3
 $f3->run();
