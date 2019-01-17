@@ -21,7 +21,10 @@ class Page {
     }  
     
     function home() {
-        print \Template::instance()->render('base.html');
+        $f3 = $this->f3;
+        
+        self::get_cloudwatch_data($f3);
+        print \Template::instance()->render('bare.html');
     }
     
     function login() {
@@ -154,6 +157,24 @@ class Page {
     //Get aws_cloudwatch data
     function get_cloudwatch_data () {
        $client = new Aws\CloudWatchLogs\CloudWatchLogsClient($this->aws_credentials);
+       
+       $result = $client->describeLogStreams([
+           //'descending' => true || false,
+           //'limit' => <integer>,
+           'logGroupName' => '/var/log/httpd/access_log', // REQUIRED
+           'logStreamNamePrefix' => 'test' . $this->instance_id,
+           //'nextToken' => '<string>',
+           //'orderBy' => $this->instance_id,
+       ]);
+       
+       //Create log stream if it doesnt exist for this instance
+       if (empty($result['logStreams'])) {
+           $client->createLogStream([
+               'logGroupName' => '/var/log/httpd/access_log', // REQUIRED
+               'logStreamName' => $this->instance_id, // REQUIRED
+           ]);
+       }
+       
        $result = $client->getLogEvents([
 //            'endTime' => <integer>,
             'limit' => 100,
