@@ -21,10 +21,7 @@ class Page {
     }  
     
     function home() {
-        $f3 = $this->f3;
-        
-        self::get_cloudwatch_data($f3);
-        print \Template::instance()->render('bare.html');
+        print \Template::instance()->render('base.html');
     }
     
     function login() {
