@@ -119,16 +119,14 @@ main {
                         <img src="{{@SCHEME}}://wearemetronome.com/images/Logo_notext6.png" alt="Metronome LLC" class="logosize">
             </a>
     Created for
- <!--   <span>SPAWAR</span> -->
-    <span>[DEMO]</span>
+  <span>SPAWAR</span>
   </h1>
   <div style="display:block">
   <check if="{{ @is_authenticated }}">
+   	<true><a href="/" class="btn btn-lg btn-outline-light" >Start Over</a></true>
   	<false><a href="login" class="btn btn-lg btn-outline-light" >Login</a></false>
-  	<true><a href="/" class="btn btn-lg btn-outline-light" >Start Over</a></true>
   	</check> 
   </div>
-  <br /><a href="/download/file.big" class="btn btn-sm btn-outline-light" >Download</a>
   
 </header>
 <check if="{{ @is_authenticated }}">
@@ -173,11 +171,19 @@ main {
   <div class="tab-pane container fade" id="log">
 
       <div class="terminal">
-  
-    <repeat group="{{ @aws_cloudwatch_events.events }}" value="{{ @event }}" class="terminal">
-    <span>{{ @event.message }}</span><br />
-         
+  <check if="{{ !empty(@aws_cloudwatch.alarms.MetricAlarms ) }}">
+    <true>
+    <repeat group="{{ @aws_cloudwatch.alarms.MetricAlarms }}" value="{{ @alarm }}" class="terminal">
+    <span>{{ @alarm }}</span><br />
 </repeat>
+    </true>
+    <false>
+    <span class="font-weight-bold" style="color:red">No alarms are active... Showing apache logs instead</span><br />
+    <repeat group="{{ @aws_cloudwatch.logs.events }}" value="{{ @log }}" class="terminal">
+    <span>{{ @log.message }}</span><br />
+</repeat>
+</false>
+    </check>
 </div>
   </div>
   <div class="tab-pane container fade" id="code">
@@ -192,15 +198,15 @@ main {
   <check if="{{ !is_array(@value) && @value != '' }}">
     <check if="{{ stripos(@value,'gravatar')!==false }}">
     <true>
-    <p><span class="text-success">{{ trim(@key) }}:</span> <img src="{{ @value }}" /></p>
+    <span class="text-success">{{ trim(@key) }}:</span> <img src="{{ @value }}" /><br />
     </true>
     <false>
         <check if="{{ stripos(@key,'date')!==false }}">
     <true>
-    <p><span class="text-success">{{ trim(@key) }}:</span> {{  'g:i A l, F j Y',@value  | date }}</p>
+    <span class="text-success">{{ trim(@key) }}:</span> {{  'g:i A l, F j Y',@value  | date }}<br />
     </true>
     <false>
-        <p><span class="text-success">{{ trim(@key) }}:</span> {{ @value }}</p>
+        <span class="text-success">{{ trim(@key) }}:</span> {{ @value }}<br />
     </false>
     </check>
     </false>
@@ -219,6 +225,7 @@ main {
 
 </main>
 </check>
+{{ @debug | RAW }}
 
 
   </body>

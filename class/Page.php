@@ -3,6 +3,7 @@ class Page {
 	//Declare globals
     public $f3;
     private $aws_credentials;
+    private $instance_id;
     
     public function __construct($f3)
     {
@@ -10,7 +11,12 @@ class Page {
             'version' => 'latest',
             'region' => 'us-east-1',
             'profile' => 'default'
-        ]; 
+        ];
+		
+		//Get current instance ID
+		$web=\Web::instance();
+		
+		$this->instance_id = $web->request('http://169.254.169.254/latest/meta-data/instance-id')['body'];
         $this->f3 = $f3;
     }  
     
@@ -24,17 +30,15 @@ class Page {
         
         //Set variables
         $f3->set('current_time', self::get_current_time());
-        $f3->set('aws_ec2_instance', self::get_ec2_instance());
-		$f3->set('aws_rds_instance', self::get_rds_instance());
-		$f3->set('aws_cloudwatch_events', self::get_cloudwatch_events());
-		$f3->set('oauth_user', self::get_oauth_user()); 
-        
+        $f3->set('aws_ec2_instance', self::get_ec2_instance($f3));
+        $f3->set('aws_rds_instance', self::get_rds_instance($f3));
+        $f3->set('aws_cloudwatch', self::get_cloudwatch_data($f3));
+        $f3->set('oauth_user', self::get_oauth_user($f3)); 
 		//Render Page
         print \Template::instance()->render('base.html');
     }
     
-    function get_oauth_user() {
-    	$f3 = $this->f3;
+    function get_oauth_user($f3) {
     	 
     	// Create a new (and much lighter) OAuth2 client with no external dependencies!!  	   
     	$oauth2 = new \Web\OAuth2();
@@ -45,7 +49,7 @@ class Page {
     	//Set OAuth parameters
     	$oauth2->set('redirect_uri', $redirect_uri);
     	$oauth2->set('client_id', $oauth_credentials['oauth_client_id']);
-    	$oauth2->set('client_secret', $oauth_credentials['oauth_client_secret ']);
+    	$oauth2->set('client_secret', $oauth_credentials['oauth_client_secret']);
 
     	if ($f3->get('VERB') == 'GET' && !isset($_GET['code'])) {
     		//Step 1: OAuth 2.0 flow (Send a user to /oauth endpoint, with these query string parameters)
@@ -57,9 +61,10 @@ class Page {
     		$oauth2->set('code', $_GET['code']);    	
     		// Step 4: OAuth 2.0 flow (POST parameters to /oauth/access_token endpoint)
     		$uri = $oauth2->uri($auth_domain . '/oauth/access_token/json');
-    		if ($request = $oauth2->request($uri, 'POST'))
+    		$request = $oauth2->request($uri, 'POST');    		
+    		if (!array_key_exists('error_message',$request))
     		{
-    			//$oauth2 = new \Web\OAuth2();
+    			$oauth2 = new \Web\OAuth2();
     			$web=\Web::instance();
     			$oauth2->set('access_token', $request['access_token']);
     			$oauth2->set('key', $oauth_credentials['oauth_stackoverflow_key']);
@@ -75,44 +80,36 @@ class Page {
     				$f3->set('is_authenticated',true);
     				return json_decode($me['body'],1)['items'][0];
     			}
-    			$f3->set('is_authenticated',false);
     		}
+    		$f3->set('is_authenticated',false);
     }
    }
     
     //Get aws_ec2_instance
-    function get_ec2_instance () {    	
-    	//Get current instance ID
-    	$web=\Web::instance();
-    	$instance_id = $web->request('http://169.254.169.254/latest/meta-data/instance-id')['body'];
-
+    function get_ec2_instance (&$f3) {    	
     	//Create EC2 Client and perform query
     	$client = new Aws\Ec2\Ec2Client($this->aws_credentials);
     	$result = $client->describeInstances([
-    			'InstanceIds' => [$instance_id]
+    			'InstanceIds' => [$this->instance_id]
     	]);
-    	$f3 = $this->f3;
 
     	//Set aws_ec2_instance properties
 		$output = [
 				//'Name' => $result['Reservations'][0]['Instances'][0]['Tags'][0]['Value'],
     			'Address' => $result['Reservations'][0]['Instances'][0]['PublicDnsName'],
 				'VpcId' => $result['Reservations'][0]['Instances'][0]['VpcId'],
-				'Identifier' => $instance_id
+		        'Identifier' => $this->instance_id
     	];
 		foreach ($result['Reservations'][0]['Instances'][0]['Tags'] as $tag)
 			if ($tag['Key'] == 'Name')
 				$output['Name'] = $tag['Value'];
-
-		$f3 = $this->f3;
-		$f3->set('debug', k('1' . $output,KRUMO_RETURN));
 				
 		$result = $client->DescribeVpcs([
 				'VpcIds' => [$output['VpcId']]
 		]);
 		
 		//Get sensitive OAuth Credentials from VPC tags. This is not the AWS best practice but for demonstration purposes we will
-		//use this method to keep the code UNCLASSIFIED!
+		//use this method to keep the code UNCLASSIFIED and demonstrate portability with M.A.D.E!
 		$oauth_credentials = [];
 		foreach ($result['Vpcs'][0]['Tags'] as $tag)
 			$oauth_credentials[$tag['Key']] = $tag['Value'];
@@ -154,18 +151,32 @@ class Page {
         //$f3->set('DB', new DB\SQL("mysql:host={$hostname};port={$port};dbname={$database}",$username, $password));
     }
 
-    //Get aws_cloudwatch_events
-    function get_cloudwatch_events () {
+    //Get aws_cloudwatch data
+    function get_cloudwatch_data () {
        $client = new Aws\CloudWatchLogs\CloudWatchLogsClient($this->aws_credentials);
        $result = $client->getLogEvents([
 //            'endTime' => <integer>,
             'limit' => 100,
-            'logGroupName' => '/var/log/messages', // REQUIRED
-            'logStreamName' => 'i-00b505e5c02ae863e', // REQUIRED
+            'logGroupName' => '/var/log/httpd/access_log', // REQUIRED
+            'logStreamName' => $this->instance_id, // REQUIRED //
 //            'nextToken' => '<string>',
 //            'startFromHead' => true || false,
 //            'startTime' => <integer>,
         ]);
-        return $result; 
+
+       $output['logs']=$result;
+       
+       $client = new Aws\CloudWatch\CloudWatchClient($this->aws_credentials); 
+       $result = $client->describeAlarms([
+           //'ActionPrefix' => '<string>',
+           //'AlarmNamePrefix' => '<string>',
+           //'AlarmNames' => ['<string>', ...],
+           'MaxRecords' => 100,
+           //'NextToken' => '<string>',
+           'StateValue' => 'ALARM',
+       ]);
+       
+       $output['alarms']=$result;
+       return $output; 
     }
 }
