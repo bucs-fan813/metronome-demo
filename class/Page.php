@@ -21,7 +21,8 @@ class Page {
     }  
     
     function home() {
-        print \Template::instance()->render('base.html');
+        self::login();
+        //print \Template::instance()->render('base.html');
     }
     
     function login() {
@@ -33,7 +34,8 @@ class Page {
         $f3->set('aws_ec2_instance', self::get_ec2_instance($f3));
         $f3->set('aws_rds_instance', self::get_rds_instance($f3));
         $f3->set('aws_cloudwatch', self::get_cloudwatch_data($f3));
-        $f3->set('oauth_user', self::get_oauth_user($f3)); 
+        //$f3->set('oauth_user', self::get_oauth_user($f3));
+        $f3->set('is_authenticated',true);
 		//Render Page
         print \Template::instance()->render('base.html');
     }
@@ -158,7 +160,7 @@ class Page {
     }
 
     //Set current_time
-    function get_current_time () {return  date("g:i A l, F j Y.");}
+    function get_current_time () {return  date("g:i A l, F j Y (e).");}
 
     //Get aws_rds_instance    
     function get_rds_instance () {
@@ -190,6 +192,14 @@ class Page {
     }
 
     //Get aws_cloudwatch data
+    //NOTE: If cloudwatch logs are not being sent from this instance
+    //Check: ~/.aws/credentials (and permissions)
+    //Check: /.aws/credentials (if logs are in cloudwatch but not showing in this app) 
+    //Check: sudo rm /var/lib/awslogs/agent-state
+    //Check: sudo yum reinstall awslogs
+    //Check: sudo service awslogs restart
+    //Check: curl https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py -O
+    //Check: sudo python ./awslogs-agent-setup.py --region us-east-1
     function get_cloudwatch_data () {
        $client = new Aws\CloudWatchLogs\CloudWatchLogsClient($this->aws_credentials);
        

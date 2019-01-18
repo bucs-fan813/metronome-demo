@@ -132,16 +132,13 @@ main {
     <li class="nav-item">
     <a class="nav-link" data-toggle="tab" href="#code">Code</a>
   </li>
-  <li class="nav-item">
-    <a class="nav-link" data-toggle="tab" href="#reference">Reference</a>
-  </li>
+<!--   <li class="nav-item">
+    <a class="nav-link" data-toggle="tab" href="#made">M.A.D.E.</a>
+  </li> -->
     <li class="nav-item">
     <a class="nav-link" data-toggle="tab" href="#user">User</a>
   </li>
     </li>
-    <li class="nav-item">
-    <a class="nav-link" data-toggle="tab" href="#debug">Debug</a>
-  </li>
 </ul>
 <main>
     <p/>
@@ -160,7 +157,7 @@ main {
       Connected to {{ @aws_rds_instance.Identifier }} <span class="text-success">successfully</span>
 </div>
   <div class="tab-pane container fade" id="log">
-
+<p><a href="https://a.blazemeter.com/app/#/accounts/285601/workspaces/280204/projects/353198/tests/6539597" class="btn btn-sm btn-danger">Load Test</a></p>
       <div class="terminal">
   <check if="{{ !empty(@aws_cloudwatch.alarms.MetricAlarms ) }}">
     <true>
@@ -178,13 +175,20 @@ main {
 </div>
   </div>
   <div class="tab-pane container fade" id="code">
-  <script src="{{@SCHEME}}://gist.github.com/bucs-fan813/927501523300860a1103333a751a8c1a.js"></script>
+  <p>
+  <a href="#cloudformation" class="btn btn-sm btn-primary">Cloudformation</a>
+  <a href="#version_control" class="btn btn-sm btn-primary">Version Control</a>
+  <a href="#application" class="btn btn-sm btn-primary">Application</a>
+  </p>
+  <div id="cloudformation"><script src="{{@SCHEME}}://gist.github.com/bucs-fan813/927501523300860a1103333a751a8c1a.js"></script></div>
+  <div id="version_control"><script src="{{@SCHEME}}://gist.github.com/bucs-fan813/17a309520132bafb3392e0548bbb61e6.js"></script></div>
+  <div id="application"><script src="{{@SCHEME}}://gist.github.com/bucs-fan813/d3fe64395df2331c3293e182a09dce89.js"></script></div>
+  
 </div>
-  <div class="tab-pane container fade" id="reference">
-<img alt="aws-project_lamp-app_arch" title="aws-project_lamp-app_arch" src="//d1.awsstatic.com/Projects/lamp-web-app/aws-project_lamp-app_arch.5580fe94a407dc3f9142f05cd730c5c9d7de6ac6.png">
+  <div class="tab-pane container fade" id="made">
+<img style="background-color:white" src="//s3.amazonaws.com/wearemetronome-assets/low-to-high.png" />
 </div>
   <div class="tab-pane container fade" id="user">
-  <exclude>{{ @me | raw }}</exclude>
   <repeat group="{{ @oauth_user }}" key="{{ @key }}" value="{{ @value }}">
   <check if="{{ !is_array(@value) && @value != '' }}">
     <check if="{{ stripos(@value,'gravatar')!==false }}">
