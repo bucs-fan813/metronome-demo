@@ -21,8 +21,7 @@ class Page {
     }  
     
     function home() {
-        self::login();
-        //print \Template::instance()->render('base.html');
+        print \Template::instance()->render('base.html');
     }
     
     function login() {
@@ -34,8 +33,7 @@ class Page {
         $f3->set('aws_ec2_instance', self::get_ec2_instance($f3));
         $f3->set('aws_rds_instance', self::get_rds_instance($f3));
         $f3->set('aws_cloudwatch', self::get_cloudwatch_data($f3));
-        //$f3->set('oauth_user', self::get_oauth_user($f3));
-        $f3->set('is_authenticated',true);
+        $f3->set('oauth_user', self::get_oauth_user($f3));
 		//Render Page
         print \Template::instance()->render('base.html');
     }
