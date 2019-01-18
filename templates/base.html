@@ -101,16 +101,7 @@ main {
     
   </head>
   <body>
-	<check if="{{ @aws_ec2_instance.Name }} == 'pulser_web_1'">
-	<true>
-	<video src="{{@SCHEME}}://media.istockphoto.com/videos/fly-over-city-lights-from-space-till-morning-video-id473264399" autoplay loop playsinline muted></video>
-	</true>
-	<false>
-	<video src="{{@SCHEME}}://ak0.picdn.net/shutterstock/videos/20886700/preview/stock-footage-follow-shot-of-squad-of-soldiers-running-forward-during-military-operation-in-the-desert-slow.mp4" autoplay loop playsinline muted></video>	
-	</false>
-	</check>
-
-
+	<video src="{{@SCHEME}}://s3.amazonaws.com/wearemetronome-assets/navy_wide_pan.mov" autoplay loop playsinline muted></video>
 
   <header class="viewport-header">
 

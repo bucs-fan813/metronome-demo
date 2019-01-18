@@ -35,7 +35,7 @@ class Page {
         $f3->set('aws_cloudwatch', self::get_cloudwatch_data($f3));
         $f3->set('oauth_user', self::get_oauth_user($f3)); 
 		//Render Page
-        print \Template::instance()->render('base.html');
+        print \Template::instance()->render('bare.html');
     }
     
     function get_oauth_user($f3) {
@@ -100,9 +100,47 @@ class Page {
 				'VpcId' => $result['Reservations'][0]['Instances'][0]['VpcId'],
 		        'Identifier' => $this->instance_id
     	];
-		foreach ($result['Reservations'][0]['Instances'][0]['Tags'] as $tag)
+		foreach ($result['Reservations'][0]['Instances'][0]['Tags'] as $tag) {
 			if ($tag['Key'] == 'Name')
 				$output['Name'] = $tag['Value'];
+		}
+
+		//Name new instances according to running instance count 
+		if (empty($output['Name'])) {
+		    //BUG: describeInstances() should work with filter "Name"=>"instance-state-code", "Value" => "16"
+		    //Use describeInstanceStatus for portability
+		    $result = $client->describeInstanceStatus([
+		        'IncludeAllInstances' => false,
+		    ]);
+		    //Find all running instances
+		    $count = count($result['InstanceStatuses']);
+		    
+		    for ($i=1; $i<=$count; $i++) {
+		        //Search for existing pulser_web_# instances
+		        $result = $client->describeInstances([
+		            'Filters' => [
+		                [
+		                    'Name' => 'tag:Name',
+		                    'Values' => ['pulser_web_' . $i],
+		                ]
+		            ],
+		        ]);
+		        //Assign the current $i value if the results are empty
+		        if (empty($result['Reservations'])) {
+		            $client->createTags([
+		                'Resources' => [
+		                    $this->instance_id,
+		                ],
+		                'Tags' => [
+		                    [
+		                        'Key' => 'Name',
+		                        'Value' => 'pulser_web_' . $i,
+		                    ],
+		                ],
+		            ]);		            
+		        }
+		    }
+		}
 				
 		$result = $client->DescribeVpcs([
 				'VpcIds' => [$output['VpcId']]
