@@ -165,7 +165,7 @@ main {
   <check if="{{ !empty(@aws_cloudwatch.alarms.MetricAlarms ) }}">
     <true>
     <repeat group="{{ @aws_cloudwatch.alarms.MetricAlarms }}" value="{{ @alarm }}" class="terminal">
-    <span>{{ @alarm }}</span><br />
+    <span>{{ @alarm.StateReason }}</span><br />
 </repeat>
     </true>
     <false>
