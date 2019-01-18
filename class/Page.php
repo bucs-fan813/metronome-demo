@@ -35,7 +35,7 @@ class Page {
         $f3->set('aws_cloudwatch', self::get_cloudwatch_data($f3));
         $f3->set('oauth_user', self::get_oauth_user($f3)); 
 		//Render Page
-        print \Template::instance()->render('bare.html');
+        print \Template::instance()->render('base.html');
     }
     
     function get_oauth_user($f3) {
